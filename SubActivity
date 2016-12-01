@@ -1,0 +1,142 @@
+package com.example.android.stage_one;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Movie;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.zip.Inflater;
+
+
+public class SubActivity extends AppCompatActivity
+{
+//static int pref_no = 0; //id for values saved in shared prefrence
+   Context context1;
+    String id="";
+    GridView gridView1;
+    GridView gridView2;
+    GridView gridView3;
+
+    GridView subgridView;
+
+    ArrayList<Trailer>keys=new ArrayList<>();
+    ArrayList<Review> temp=new ArrayList<>();
+    movie test5;
+    // Populate the data into the template view using the data object
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sub_);
+        gridView1 = (GridView) findViewById(R.id.review_grid);
+        gridView2 = (GridView) findViewById(R.id.trailer_grid);
+        gridView3 = (GridView) findViewById(R.id.trailer_grid);
+
+        subgridView=(GridView) findViewById(R.id.details_grid);
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+        Button b1= (Button) findViewById(R.id.reviews);
+        Button b2= (Button) findViewById(R.id.favourites);
+
+        Intent intent1 = getIntent();
+
+         test5 = (movie) intent1.getExtras().getSerializable("key");
+
+
+
+
+        subgridView.setAdapter(new MyBaseAdapterSubActivity(SubActivity.this, test5));    //pass new data to the adapter to show in grid view/
+
+
+
+        id = test5.id; //to get trailers(used in MyAsyncTrailer to get HTTP link)
+
+
+        new MyAsyncTrailer(id, SubActivity.this).execute();
+
+        gridView3.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
+            {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+keys.get(position))));
+            }
+        });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+
+void GetKey(ArrayList<Trailer>mykeys)//called by MyAsyncTrailer
+{
+    keys.addAll(mykeys);
+    gridView2.setAdapter(new MyBaseAdapterTrailer(SubActivity.this,mykeys));
+
+}
+
+ public  void open_reviews(View v)//on click
+    {
+        Intent myIntent = new Intent(SubActivity.this, Reviews.class);
+       myIntent.putExtra("key1", (Serializable) id);
+        startActivity(myIntent);
+
+    }
+
+    public  void add_favourites(View v)//,movie fav)//on click
+    {
+        //fav=test5;
+     Toast.makeText(getApplicationContext(),"Movie added to Favourites Successfully",Toast.LENGTH_SHORT).show();
+
+        SharedPreferences myPreferences = PreferenceManager.getDefaultSharedPreferences(SubActivity.this);
+
+
+        SharedPreferences.Editor myEditor = myPreferences.edit();
+
+
+        myEditor.putInt("counter",-1);
+
+        int count=myPreferences.getInt("counter",-1);
+
+        count++;
+        myEditor.putInt("counter",count).commit();
+
+       // int y=count;
+
+       // ComplexPreferences complexPreferences = ComplexPreferences.getComplexPreferences(ctx, "object_prefs", 0);
+       // complexPreferences.putObject("object_value", currentUser);
+        //complexPreferences.commit();
+
+        myEditor.putString("release"+count,test5.release);
+        myEditor.putString("disc"+count,test5.discription);
+        myEditor.putString("id"+count,test5.id);
+        myEditor.putString("img"+count,test5.image);
+        myEditor.putString("rate"+count,test5.rate);
+        myEditor.putString("title"+count,test5.title);
+       // myEditor.putString("image",fav.);
+
+        myEditor.commit();
+
+       }
+}
