@@ -1,0 +1,171 @@
+package com.example.android.stage_one;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.content.Context;
+import android.graphics.Movie;
+import android.os.AsyncTask;
+import android.view.View;
+import android.widget.GridView;
+import android.widget.Toast;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+/**
+ * Created by Ahmad_Mostafa on 11/4/2016.
+ */
+class MyAsyncMain extends AsyncTask<Void, Void, ArrayList<movie>>
+{
+    int SetsSetting;
+    String URL_Request="";
+    GridView gridView;
+    Context context;
+    Activity activity;
+    MyAsyncMain(int setting, Context c,Activity a)
+    {
+        SetsSetting=setting;
+        context=c;
+
+        activity=a;
+    }
+
+    @Override
+    protected ArrayList<movie> doInBackground(Void... voids)//void array
+    {
+        // These two need to be declared outside the try/catch
+// so that they can be closed in the finally block.
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+
+// Will contain the raw JSON response as a string.
+        String movie_info_string = null;
+
+        try {
+
+
+            // Construct the URL for the OpenWeatherMap query
+            // Possible parameters are available at OWM's forecast API page, at
+            // http://openweathermap.org/API#forecast
+            if(SetsSetting==1)//sort by rate
+            {
+                URL_Request="http://api.themoviedb.org/3/movie/top_rated?api_key=d9489eb3f43cfe34e1fd72d6fb528d96";
+            }
+
+            else if(SetsSetting==0)//sort by popularity
+            {
+                URL_Request="http://api.themoviedb.org/3/movie/popular?api_key=d9489eb3f43cfe34e1fd72d6fb528d96";
+            }
+
+
+            URL url = new URL(URL_Request);
+            // Create the request to OpenWeatherMap, and open the connection
+
+            urlConnection = (HttpURLConnection) url.openConnection(); ///????????????????????????????//
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            // Read the input stream into a String
+            InputStream inputStream = urlConnection.getInputStream();//DATA COME IN SHAPE OF INPUT STREAM
+
+            StringBuffer buffer = new StringBuffer(); //STRING THAT WE CAN APPEND ON IT WITHOUT OVERRIDING PAST DATA
+            if (inputStream == null) //case nothing read from URL
+            {
+                // Nothing to do.
+                movie_info_string = null;
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream)); //READING LINE BY LINE
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debugging.
+                buffer.append(line + "\n"); //APPENDING IN THE BUFFER
+            }
+
+            if (buffer.length() == 0) //NOTHING READ
+            {
+                // Stream was empty.  No point in parsing.
+                movie_info_string = null;
+            }
+            movie_info_string = buffer.toString();
+
+        }
+
+        catch (IOException e)  //CASE THE CODE DIDN'T GET DATA SUCCESSFULLY
+        {
+          //  Toast.makeText(context, "HTTP Connection Error : " + e.toString(), Toast.LENGTH_LONG).show();
+            return null;
+
+        }
+
+        finally //CLOSE URL CONNECTION
+        {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (final IOException e)
+                {
+
+                }
+            }
+        }
+        //NOW I HAVE THE DATA IN movie_info_string
+///////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        // These are the names of the JSON objects that need to be extracted.
+        final String image = "poster_path";
+        final String discription = "overview";
+        final String release_date = "release_date";
+        final String title = "title";
+        final String rate = "vote_average";
+        final String id = "id";
+        ArrayList<movie> test2 = new ArrayList<>();  //array to store parsed data
+
+        try {
+            JSONObject json_object = new JSONObject(movie_info_string);//jason object is any data between{}
+            //value=movie_json1.get(key);  case i am getting an object
+
+            JSONArray json_array = json_object.getJSONArray("results"); //json array is a json object named json_object
+
+
+            for (int i = 0; i < json_array.length(); i++)
+            {
+                JSONObject obj = json_array.getJSONObject(i);//objects inside this array between {}
+                movie mo = new movie(obj.getString(title), obj.getString(discription), obj.getString(image), obj.getString(rate), obj.getString(release_date),obj.getString(id));
+                test2.add(mo);
+            }
+        }
+
+        catch (JSONException e)
+        {
+        }
+
+        return test2;
+
+    }
+
+    @Override
+    protected void onPostExecute(ArrayList<movie> test3)
+    {
+
+       ((MainActivity)activity).UpdateUI(test3);//function called from main activity to set adapter
+
+    }
+
+}
+
+
+
