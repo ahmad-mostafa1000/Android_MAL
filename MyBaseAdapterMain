@@ -1,0 +1,137 @@
+package com.example.android.stage_one;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Movie;
+import android.net.Uri;
+import android.provider.Settings;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+
+
+/**
+ * Created by Ahmad_Mostafa on 10/10/2016.
+ */
+
+////////////////////////////////////////
+
+ class viewholder
+{
+    ImageView img;
+
+}
+
+public class MyBaseAdapterMain extends BaseAdapter
+{
+    Activity context1;
+    LayoutInflater inflater;
+
+    ArrayList<movie>data1=new ArrayList<>();//=new ArrayList<>();
+
+    public MyBaseAdapterMain(Activity context,ArrayList<movie>data)
+    {
+        context1=context; //?????????
+            if(data!=null)
+            {
+         this.data1 = data;
+        }
+
+            }
+
+    // gives you the Total Elements present in your adapter
+  //  @Override
+ public int getCount()
+    {
+        return data1.size();
+    }
+//tells which item was clicked simply return here the way I did specifying the position .
+// It actually return the whole view that you clicked with all its properties
+// and thats why we just return here the view of the position we clicked in order to tell the BASEADAPTER Class that this view is cliked
+    @Override
+    public Object getItem(int position)
+    {
+
+        return data1.get(position);
+    }
+
+    @Override
+    public long getItemId(int position)
+    {
+        return position ;
+// retuning my Primary id from the arraylist by
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent)
+    {
+        //**parent**    the parent that this view will eventually be attached to
+
+        View rowView = convertView;
+        viewholder holder=null;
+
+
+        if (convertView == null)   //always required to be checked as mentioned in google docs
+        // this line checks for if initially row View is null then we have to create the Row View. Once it will be created then it will always Surpass this check and we will keep on reusing this rowView (thats what actually we are looking for)
+        {
+            // if it's not recycled, initialize some attributes
+            //??????????????????????????????????????????/
+            inflater = (LayoutInflater)context1.getSystemService(Context.LAYOUT_INFLATER_SERVICE); //data on XML is inside my java object
+            rowView = inflater.inflate(R.layout.gridview_item,parent, false); //choosing view to inflate from
+           holder=new viewholder();
+
+            holder.img= (ImageView)rowView.findViewById(R.id.pic);
+
+
+            rowView.setTag(holder); //save holde tag in the view
+
+        }
+        else
+        {
+            holder = (viewholder) rowView.getTag();
+        }
+
+        movie temp=(movie) data1.get(position);
+
+
+        String poster_path_only=temp.image;
+        temp.image="https://image.tmdb.org/t/p/w500/"+temp.image; //adding base URL to poster Path
+
+        Picasso.with(context1).load(data1.get(position).image).into(holder.img);              //image: base URL + URL of the loaded poster
+
+        temp.image=poster_path_only; //saving Poster path only inside the object
+
+   // holder.text.setText(temp.discription);
+    //   holder.release.setText(temp.release);
+    //   holder.rate.setText(String.valueOf((temp.rate)));
+
+        return rowView;
+    }
+}
+        //**position**  index of the item whose view we want.
+        //**convertView**   the old view to reuse, if possible. Note: You should
+        //check that this view is non-null and of an appropriate type before using. If it is
+        //not possible to convert this view to display the correct data, this method can create a
+        //new view.
+        //                        (Lets see if you have total 100 elements in listview , but
+        //currently only 10 are visible in screen. So it will create only 10 items at a time as
+        //only those are visible.
+        //and when you will scroll that listView it will use these same 10
+        //Views(elemnts in rows to display new data, instead of creating 10 more new views, which
+        //obviously will be efficeient)
+        //While alternatively if we dont extend base adapter (but rather
+        //use simple binding using simpleadapter) it will then generates whole list of 100 Views
+        //in one short whic will be time consuimng/ memory consuming depending uopn the amount of
+        //data to be bind
