@@ -1,0 +1,170 @@
+package com.example.android.stage_one;
+
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Movie;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.text.format.Time;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements MyMainInterface
+{
+
+
+    ArrayList<movie> test1;
+    Activity activity;
+    Context context1;
+    boolean check=false;
+    private Spinner spinner;
+    GridView gridView;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+
+   /* public static boolean isNetworkAvailable(Context context)
+    {
+        ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (connectivity == null) {
+            return false;
+        } else {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) {
+                for (int i = 0; i < info.length; i++) {
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+*/
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+  /*  check=isNetworkAvailable(context1);
+        if(check==true)
+       {
+            new MyAsyncMain(0, gridView, context1, MainActivity.this).execute();
+       }
+       else
+      {
+            Toast.makeText(getApplicationContext(),"Error in Connection",Toast.LENGTH_SHORT).show();
+        }
+
+*/
+
+/////////////////////////////////////////// Fragment /////////////////////////////////////////////////////////////////
+      //fragmentManager start a transaction
+     //   Create a new instance of your fragment
+       // Add that fragment to your FragmentManager
+        //add fragment to Main XML layout
+
+      //  new MyAsyncMain(0, gridView, context1, MainActivity.this).execute();
+
+        MainFragment fragment = new MainFragment();
+        fragment.setListener(this);
+        getSupportFragmentManager().beginTransaction().add(R.id.main_layout,fragment,"MainFragment").commit();
+
+
+        gridView = (GridView)findViewById(R.id.gridView); //used to set adapter to view returned list from MyAsyncMain
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+    }
+
+
+    @Override
+    public void open_details(movie mymovie)
+    {
+        Intent myIntent = new Intent(MainActivity.this, SubActivity.class);
+        myIntent.putExtra("key", (Serializable) mymovie);
+        startActivity(myIntent);
+    }
+
+    @Override
+    public void Call_Main_Async(int pos)
+    {
+
+        if (pos == 0)//popularity
+        {
+            new MyAsyncMain(0,context1,MainActivity.this).execute();
+        }
+        else if (pos == 1)//rate
+        {
+            new MyAsyncMain(1,context1,MainActivity.this).execute();
+        }
+        else //Favourites
+        {
+            Intent myIntent = new Intent(MainActivity.this, Favourites.class);
+            startActivity(myIntent);
+        }
+
+    }
+
+    public void UpdateUI( ArrayList<movie> test)
+    {
+
+        //called by MyAsync_Main to send Array of movies to be set on adapter
+
+        Bundle extra=new Bundle();
+        extra.putSerializable("mymovieslist",test);
+        MainFragment fragment = new MainFragment();
+        fragment.setArguments(extra);
+
+    }
+}
+
+/////////////////////////////////////////////////////
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////
