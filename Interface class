@@ -1,0 +1,13 @@
+package com.example.android.stage_one;
+
+import java.util.ArrayList;
+
+/**
+ * Created by Ahmad_Mostafa on 11/29/2016.
+ */
+public interface MyMainInterface
+{
+    void open_details(movie mymovie);
+    void Call_Main_Async(int type);
+
+}
