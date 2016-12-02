@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MyMainInterface
     boolean check=false;
     private Spinner spinner;
     GridView gridView;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -102,14 +104,10 @@ public class MainActivity extends AppCompatActivity implements MyMainInterface
        // Add that fragment to your FragmentManager
         //add fragment to Main XML layout
 
-      //  new MyAsyncMain(0, gridView, context1, MainActivity.this).execute();
 
         MainFragment fragment = new MainFragment();
         fragment.setListener(this);
         getSupportFragmentManager().beginTransaction().add(R.id.main_layout,fragment,"MainFragment").commit();
-
-
-        gridView = (GridView)findViewById(R.id.gridView); //used to set adapter to view returned list from MyAsyncMain
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements MyMainInterface
     }
 
 
+
     @Override
     public void open_details(movie mymovie)
     {
@@ -130,37 +129,9 @@ public class MainActivity extends AppCompatActivity implements MyMainInterface
         startActivity(myIntent);
     }
 
-    @Override
-    public void Call_Main_Async(int pos)
-    {
 
-        if (pos == 0)//popularity
-        {
-            new MyAsyncMain(0,context1,MainActivity.this).execute();
-        }
-        else if (pos == 1)//rate
-        {
-            new MyAsyncMain(1,context1,MainActivity.this).execute();
-        }
-        else //Favourites
-        {
-            Intent myIntent = new Intent(MainActivity.this, Favourites.class);
-            startActivity(myIntent);
-        }
 
-    }
 
-    public void UpdateUI( ArrayList<movie> test)
-    {
-
-        //called by MyAsync_Main to send Array of movies to be set on adapter
-
-        Bundle extra=new Bundle();
-        extra.putSerializable("mymovieslist",test);
-        MainFragment fragment = new MainFragment();
-        fragment.setArguments(extra);
-
-    }
 }
 
 /////////////////////////////////////////////////////
@@ -168,3 +139,4 @@ public class MainActivity extends AppCompatActivity implements MyMainInterface
 
 
     ///////////////////////////////////////////////////////////////////////////////
+
