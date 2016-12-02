@@ -103,6 +103,7 @@ void setListener(MyMainInterface lis)
     {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         // Inflate the layout for this fragment
+        new MyAsyncMain(0,context1,this).execute();
 
         return rootView;
     }
@@ -111,18 +112,18 @@ void setListener(MyMainInterface lis)
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
-        myListener.Call_Main_Async(0);//showing grid view
-
-
-
         super.onActivityCreated(savedInstanceState);
+
+        new MyAsyncMain(0,context1,this).execute();
+
+        Spinner();
+
         gridView = (GridView) getView().findViewById(R.id.gridView);
 
 
         ArrayList<movie> test2=new ArrayList<movie>() ;
 
-        Bundle extra=new Bundle();
-        test2.addAll(extra.get("mymovieslist"));
+
 
         gridView.setAdapter(new MyBaseAdapterMain(getActivity(), test2));    //pass new data to the adapter to show in grid view/
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -138,7 +139,8 @@ void setListener(MyMainInterface lis)
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed(Uri uri)
+    {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
@@ -210,14 +212,15 @@ void setListener(MyMainInterface lis)
 
                 if (pos == 0)//popularity
                 {
-                    myListener.Call_Main_Async(0);//
+                    new MyAsyncMain(0,context1,MainFragment.this).execute();
                 }
                 else if (pos == 1)//rate
                 {
-                    myListener.Call_Main_Async(1);                }
+                    new MyAsyncMain(1, context1, MainFragment.this).execute();
+                }
                 else //Favourites
                 {
-                    myListener.Call_Main_Async(2);
+                    new MyAsyncMain(2,context1,MainFragment.this).execute();
                 }
             }
 
